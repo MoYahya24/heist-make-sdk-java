@@ -1,4 +1,4 @@
-package sse;
+package event;
 
 import java.util.ArrayList;
 import java.util.EventListener;
@@ -18,7 +18,11 @@ public class EventTarget {
         listeners.get(type).add(listener);
     }
 
-    public void removeListener(String type, EventListener listener ){
+    public void removeEventListener(String type, EventListener listener ){
         listeners.get(type).remove(listener);
+    }
+
+    public void dispatchEvent(Event event){
+
     }
 }

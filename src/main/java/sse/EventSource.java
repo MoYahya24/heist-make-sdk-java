@@ -2,21 +2,18 @@ package sse;
 
 
 
-import java.io.BufferedReader;
+import event.Event;
+import event.EventTarget;
+
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.*;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.stream.Collector;
+import java.time.Duration;
 import java.util.stream.Stream;
 
-
-import javax.net.ssl.HttpsURLConnection;
-
-public class EventSource extends EventTarget{
+public class EventSource extends EventTarget {
 
     public ReadyState readyState=ReadyState.CLOSED;
     public URL url;
@@ -39,8 +36,8 @@ public class EventSource extends EventTarget{
     public EventSource(String URL) {
         try {
              uri = new URI(URL);
-             client = HttpClient.newHttpClient();
-             request= HttpRequest.newBuilder(uri).GET().build();
+             client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(5)).build();
+             request= HttpRequest.newBuilder(uri).timeout(Duration.ofSeconds(5)).GET().build();
 
 
         } catch (URISyntaxException e) {
@@ -68,19 +65,17 @@ public class EventSource extends EventTarget{
 
 
 
-    public void onerror(Event ev) throws IOException {
-        if(connection.getResponseCode()>299)
-            ev.event();
+    public void onerror( Event ev ) {
+
+        /*if(connection.getResponseCode()>299) {
+            ev.;
+        }*/
     }
 
-    public String onmessage(MessageEvent ev) throws IOException, InterruptedException {
+    public void onmessage( Event e ) {
 
+        this.dispatchEvent(e);
 
-        lines= client.send(request, HttpResponse.BodyHandlers.ofLines()).body();
-        ev.messageEvent(lines);
-        StringBuilder builder = new StringBuilder();
-        lines.forEach(ch->builder.append(ch));
-        return builder.toString();
     }
 
     public void close(){
